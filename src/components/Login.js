@@ -1,7 +1,7 @@
-import React, { Component } from 'react';
-import { AUTH_TOKEN } from '../constants';
-import { graphql, compose } from 'react-apollo';
-import gql from 'graphql-tag';
+import React, { Component } from 'react'
+import { AUTH_TOKEN } from '../constants'
+import { graphql, compose } from 'react-apollo'
+import gql from 'graphql-tag'
 
 class Login extends Component {
   state = {
@@ -9,7 +9,7 @@ class Login extends Component {
     email: '',
     password: '',
     name: '',
-  };
+  }
 
   render() {
     return (
@@ -51,20 +51,20 @@ class Login extends Component {
           </div>
         </div>
       </div>
-    );
+    )
   }
 
   _confirm = async () => {
-    const { name, email, password } = this.state;
+    const { name, email, password } = this.state
     if (this.state.login) {
       const result = await this.props.loginMutation({
         variables: {
           email,
           password,
         },
-      });
-      const { token } = result.data.login;
-      this._saveUserData(token);
+      })
+      const { token } = result.data.login
+      this._saveUserData(token)
     } else {
       const result = await this.props.signupMutation({
         variables: {
@@ -72,16 +72,16 @@ class Login extends Component {
           email,
           password,
         },
-      });
-      const { token } = result.data.signup;
-      this._saveUserData(token);
+      })
+      const { token } = result.data.signup
+      this._saveUserData(token)
     }
-    this.props.history.push(`/`);
-  };
+    this.props.history.push(`/`)
+  }
 
-  _saveUserData = token => {
-    localStorage.setItem(AUTH_TOKEN, token);
-  };
+  _saveUserData = (token) => {
+    localStorage.setItem(AUTH_TOKEN, token)
+  }
 }
 
 const SIGNUP_MUTATION = gql`
@@ -90,7 +90,7 @@ const SIGNUP_MUTATION = gql`
       token
     }
   }
-`;
+`
 
 const LOGIN_MUTATION = gql`
   mutation LoginMutation($email: String!, $password: String!) {
@@ -98,9 +98,9 @@ const LOGIN_MUTATION = gql`
       token
     }
   }
-`;
+`
 
 export default compose(
   graphql(SIGNUP_MUTATION, { name: 'signupMutation' }),
-  graphql(LOGIN_MUTATION, { name: 'loginMutation' })
-)(Login);
+  graphql(LOGIN_MUTATION, { name: 'loginMutation' }),
+)(Login)

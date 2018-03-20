@@ -1,13 +1,14 @@
-import React, { Component } from 'react';
-import { graphql } from 'react-apollo';
-import gql from 'graphql-tag';
-import { FEED_QUERY } from './LinkList';
+import React, { Component } from 'react'
+import { graphql } from 'react-apollo'
+import gql from 'graphql-tag'
+import { LINKS_PER_PAGE } from '../constants'
+import { FEED_QUERY } from './LinkList'
 
 class CreateLink extends Component {
   state = {
     description: '',
     url: '',
-  };
+  }
 
   render() {
     return (
@@ -30,41 +31,56 @@ class CreateLink extends Component {
         </div>
         <button onClick={() => this._createLink()}>Submit</button>
       </div>
-    );
+    )
   }
 
   _createLink = async () => {
-    const { description, url } = this.state;
-    const result = await this.props.postMutation({
+    const { description, url } = this.state
+    await this.props.postMutation({
       variables: {
         description,
         url,
       },
       update: (store, { data: { post } }) => {
-        const data = store.readQuery({ query: FEED_QUERY });
-        data.feed.links.splice(0, 0, post);
+        const first = LINKS_PER_PAGE
+        const skip = 0
+        const orderBy = 'createdAt_DESC'
+        const data = store.readQuery({
+          query: FEED_QUERY,
+          variables: { first, skip, orderBy },
+        })
+        data.feed.links.splice(0, 0, post)
+        data.feed.links.pop()
         store.writeQuery({
           query: FEED_QUERY,
           data,
-        });
+          variables: { first, skip, orderBy },
+        })
       },
-    });
-    console.log('result ===', result);
-  };
+    })
+    this.props.history.push(`/new/1`)
+  }
 }
 
-// 1
 const POST_MUTATION = gql`
-  # 2
   mutation PostMutation($description: String!, $url: String!) {
     post(description: $description, url: $url) {
       id
       createdAt
       url
       description
+      postedBy {
+        id
+        name
+      }
+      votes {
+        id
+        user {
+          id
+        }
+      }
     }
   }
-`;
+`
 
-// 3
-export default graphql(POST_MUTATION, { name: 'postMutation' })(CreateLink);
+export default graphql(POST_MUTATION, { name: 'postMutation' })(CreateLink)
